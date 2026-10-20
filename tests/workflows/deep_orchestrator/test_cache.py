@@ -5,6 +5,7 @@ from mcp_agent.workflows.deep_orchestrator.cache import AgentCache
 
 
 def test_cache_hit_preserves_recently_used_agent() -> None:
+    """Reading an older entry protects it from the next capacity eviction."""
     cache = AgentCache(max_size=2)
     first_key = cache.get_key("first task", ["server"])
     second_key = cache.get_key("second task", ["server"])
@@ -26,6 +27,7 @@ def test_cache_hit_preserves_recently_used_agent() -> None:
 
 
 def test_replacing_cached_agent_does_not_evict_another_agent() -> None:
+    """Updating a full cache retains unrelated entries and its capacity."""
     cache = AgentCache(max_size=2)
     first_key = cache.get_key("first task", [])
     second_key = cache.get_key("second task", [])
@@ -42,6 +44,7 @@ def test_replacing_cached_agent_does_not_evict_another_agent() -> None:
 
 
 def test_replacing_cached_agent_refreshes_recency() -> None:
+    """A replacement becomes most recently used before the next insertion."""
     cache = AgentCache(max_size=2)
     first_key = cache.get_key("first task", [])
     second_key = cache.get_key("second task", [])
