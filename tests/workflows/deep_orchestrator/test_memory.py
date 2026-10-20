@@ -8,9 +8,15 @@ from mcp_agent.workflows.deep_orchestrator.models import KnowledgeItem
 
 @pytest.mark.parametrize("field", ["key", "value", "source", "category"])
 def test_knowledge_summary_preserves_xml_special_characters(field: str) -> None:
+    """Each knowledge field survives an XML serialization round trip."""
     memory = WorkspaceMemory(use_filesystem=False)
-    text = 'Research "A&B" < C > D, including \'quoted\' text'
-    values = {"key": "key", "value": "value", "source": "source", "category": "category"}
+    text = "Research \"A&B\" < C > D, including 'quoted' text"
+    values = {
+        "key": "key",
+        "value": "value",
+        "source": "source",
+        "category": "category",
+    }
     values[field] = text
     memory.add_knowledge(KnowledgeItem(**values))
 
@@ -27,6 +33,7 @@ def test_knowledge_summary_preserves_xml_special_characters(field: str) -> None:
 
 
 def test_knowledge_summary_truncates_values_before_xml_escaping() -> None:
+    """Truncation counts original characters and leaves complete XML entities."""
     memory = WorkspaceMemory(use_filesystem=False)
     text = "&<" * 60
     memory.add_knowledge(KnowledgeItem(key="long", value=text, source="test"))
@@ -37,6 +44,7 @@ def test_knowledge_summary_truncates_values_before_xml_escaping() -> None:
 
 
 def test_knowledge_summary_preserves_plain_text_and_confidence() -> None:
+    """Ordinary values and confidence remain unchanged in the summary."""
     memory = WorkspaceMemory(use_filesystem=False)
     memory.add_knowledge(
         KnowledgeItem(key="answer", value=42, source="analysis", confidence=0.75)
